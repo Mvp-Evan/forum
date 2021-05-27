@@ -4,20 +4,11 @@ var path = require("path");
 var cookieParser = require("cookie-parser");
 var logger = require("morgan");
 var cors = require("cors");
-const mongoose = require("mongoose");
 
 const indexRouter = require("./routes/index");
 var usersRouter = require("./routes/users");
 
 const app = express();
-
-// connect to mongodb
-const dbURI =
-  "mongodb+srv://forumUser:forumUserPassword@cluster0.6yyv9.mongodb.net/ForumApp?retryWrites=true&w=majority";
-mongoose
-  .connect(dbURI, { useNewUrlParser: true, useUnifiedTopology: true })
-  .then(() => console.log("Connected to db."))
-  .catch((err) => console.log(err));
 
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
