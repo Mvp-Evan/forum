@@ -14,8 +14,6 @@ async function main() {
     return client;
   } catch (e) {
     console.error(e);
-  } finally {
-    await client.close();
   }
 }
 

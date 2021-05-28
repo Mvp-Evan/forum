@@ -1,27 +1,16 @@
 const User = require("../models/User");
 
-exports.home = (req, res) => {
-  if (req.session.user) {
-    res.send("User home page");
-    res.send(req.session);
-  } else {
-    res.send("Default home page");
-  }
-};
-exports.login = (req, res) => {
+exports.signup = (req, res) => {
+  console.log(req.body);
   let user = new User(req.body);
   user
-    .login()
-    .then(() => {
-      req.session.user = { avatar: user.avatar, username: user.data.username };
-      req.session.save(() => {
-        res.redirect("/");
-      });
+    .signup()
+    .then((result) => {
+      res.json(result);
     })
-    .catch((e) => {
-      req.flash("errors", e);
-      req.session.save(() => {
-        res.redirect("/");
-      });
+    .catch((result) => {
+      res.json(result);
     });
 };
+
+exports.login = (req, res) => {};
