@@ -45,4 +45,25 @@ User.prototype.signup = function () {
   });
 };
 
+User.prototype.login = function () {
+  return new Promise(async (resolve, reject) => {
+    usersCollection
+      .findOne({ email: this.data.email })
+      .then((attemptedUser) => {
+        if (
+          attemptedUser &&
+          bcrypt.compareSync(this.data.passwd, attemptedUser.passwd)
+        ) {
+          this.data = attemptedUser;
+          resolve({ isPass: true, name: this.data.name });
+        } else {
+          resolve({ isPass: false });
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  });
+};
+
 module.exports = User;
