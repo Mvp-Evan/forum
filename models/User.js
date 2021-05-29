@@ -35,7 +35,6 @@ User.prototype.signup = function () {
       await usersCollection.insertOne(this.data);
       resolve({ isPass: true, isValid: true });
     } else {
-      console.log(this.data);
       if (this.errors.includes("Invalid email")) {
         reject({ isPass: false, isValid: false });
       } else {
@@ -55,7 +54,11 @@ User.prototype.login = function () {
           bcrypt.compareSync(this.data.passwd, attemptedUser.passwd)
         ) {
           this.data = attemptedUser;
-          resolve({ isPass: true, name: this.data.name });
+          resolve({
+            isPass: true,
+            name: this.data.name,
+            userId: this.data._id,
+          });
         } else {
           resolve({ isPass: false });
         }
