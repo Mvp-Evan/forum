@@ -1,4 +1,5 @@
 const { ObjectId } = require("bson");
+const { format } = require("morgan");
 
 let forumsCollection;
 let evaluatedForumsCollection;
@@ -66,6 +67,36 @@ Forum.prototype.getDetail = function () {
         }
       })
       .catch((err) => console.log(err));
+  });
+};
+
+Forum.prototype.upvote = function () {
+  return new Promise(async (resolve, reject) => {
+    await forumsCollection.updateOne(
+      { _id: ObjectId(this.data.forumId) },
+      { $inc: { up: 1 } }
+    );
+    await evaluatedForumsCollection.insertOne({
+      userId: this.data.userId,
+      forumId: this.data.forumId,
+      isVoted: "up",
+    });
+    resolve("Upvote successfully");
+  });
+};
+
+Forum.prototype.downvote = function () {
+  return new Promise(async (resolve, reject) => {
+    await forumsCollection.updateOne(
+      { _id: ObjectId(this.data.forumId) },
+      { $inc: { down: 1 } }
+    );
+    await evaluatedForumsCollection.insertOne({
+      userId: this.data.userId,
+      forumId: this.data.forumId,
+      isVoted: "down",
+    });
+    resolve("Downvote successfully");
   });
 };
 

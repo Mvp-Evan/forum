@@ -27,3 +27,25 @@ exports.detail = (req, res) => {
     })
     .catch((result) => res.send(result));
 };
+exports.upvote = (req, res) => {
+  let forum = new Forum(req.body);
+  forum
+    .upvote()
+    .then((result) => {
+      res.send(result);
+    })
+    .catch((result) => {
+      res.send(result);
+    });
+};
+exports.downvote = (req, res) => {
+  let forum = new Forum(req.body);
+  forum
+    .downvote()
+    .then((result) => {
+      res.send(result);
+    })
+    .catch((result) => {
+      res.send(result);
+    });
+};
