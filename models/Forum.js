@@ -17,9 +17,10 @@ Forum.prototype.addForum = function () {
     this.data["up"] = 0;
     this.data["down"] = 0;
     this.data["authorId"] = this.data.userId;
+    this.data["comments"] = [];
     delete this.data.userId;
     await forumsCollection.insertOne(this.data);
-    resolve(true);
+    resolve("Add Forum Successfully");
   });
 };
 
@@ -143,6 +144,23 @@ Forum.prototype.downvote = function () {
           resolve("Downvote successfully");
         }
       });
+  });
+};
+
+Forum.prototype.reply = function () {
+  return new Promise(async (resolve, reject) => {
+    await forumsCollection.updateOne(
+      { forumId: this.data.forumId },
+      {
+        $push: {
+          comments: {
+            username: this.data.username,
+            comment: this.data.comment,
+          },
+        },
+      }
+    );
+    resolve("Add Comment Successfully");
   });
 };
 
