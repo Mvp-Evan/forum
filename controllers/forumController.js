@@ -18,4 +18,12 @@ exports.addForum = (req, res) => {
     })
     .catch((err) => console.log(err));
 };
-exports.detail = (req, res) => {};
+exports.detail = (req, res) => {
+  let forum = new Forum(req.body);
+  forum
+    .getDetail()
+    .then((result) => {
+      res.json(result);
+    })
+    .catch((result) => res.send(result));
+};
