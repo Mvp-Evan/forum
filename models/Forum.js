@@ -72,31 +72,77 @@ Forum.prototype.getDetail = function () {
 
 Forum.prototype.upvote = function () {
   return new Promise(async (resolve, reject) => {
-    await forumsCollection.updateOne(
-      { _id: ObjectId(this.data.forumId) },
-      { $inc: { up: 1 } }
-    );
-    await evaluatedForumsCollection.insertOne({
-      userId: this.data.userId,
-      forumId: this.data.forumId,
-      isVoted: "up",
-    });
-    resolve("Upvote successfully");
+    evaluatedForumsCollection
+      .findOne({
+        userId: this.data.userId,
+        forumId: this.data.forumId,
+      })
+      .then(async (target) => {
+        if (target) {
+          if (target.isVoted == "up") {
+            await forumsCollection.updateOne(
+              { _id: ObjectId(this.data.forumId) },
+              { $inc: { up: -1 } }
+            );
+            await evaluatedForumsCollection.deleteOne({
+              userId: this.data.userId,
+              forumId: this.data.forumId,
+            });
+            resolve("Upvote has been canceled");
+          } else {
+            reject("You have downvoted it");
+          }
+        } else {
+          await forumsCollection.updateOne(
+            { _id: ObjectId(this.data.forumId) },
+            { $inc: { up: 1 } }
+          );
+          await evaluatedForumsCollection.insertOne({
+            userId: this.data.userId,
+            forumId: this.data.forumId,
+            isVoted: "up",
+          });
+          resolve("Upvote successfully");
+        }
+      });
   });
 };
 
 Forum.prototype.downvote = function () {
   return new Promise(async (resolve, reject) => {
-    await forumsCollection.updateOne(
-      { _id: ObjectId(this.data.forumId) },
-      { $inc: { down: 1 } }
-    );
-    await evaluatedForumsCollection.insertOne({
-      userId: this.data.userId,
-      forumId: this.data.forumId,
-      isVoted: "down",
-    });
-    resolve("Downvote successfully");
+    evaluatedForumsCollection
+      .findOne({
+        userId: this.data.userId,
+        forumId: this.data.forumId,
+      })
+      .then(async (target) => {
+        if (target) {
+          if (target.isVoted == "down") {
+            await forumsCollection.updateOne(
+              { _id: ObjectId(this.data.forumId) },
+              { $inc: { down: -1 } }
+            );
+            await evaluatedForumsCollection.deleteOne({
+              userId: this.data.userId,
+              forumId: this.data.forumId,
+            });
+            resolve("Downvote has been canceled");
+          } else {
+            reject("You have upvoted it");
+          }
+        } else {
+          await forumsCollection.updateOne(
+            { _id: ObjectId(this.data.forumId) },
+            { $inc: { down: 1 } }
+          );
+          await evaluatedForumsCollection.insertOne({
+            userId: this.data.userId,
+            forumId: this.data.forumId,
+            isVoted: "down",
+          });
+          resolve("Downvote successfully");
+        }
+      });
   });
 };
 
