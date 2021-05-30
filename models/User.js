@@ -1,4 +1,5 @@
 const bcrypt = require("bcryptjs");
+const { ObjectId } = require("bson");
 let usersCollection;
 require("../mongo").then(function (result) {
   usersCollection = result.db().collection("users");
@@ -66,6 +67,16 @@ User.prototype.login = function () {
       .catch((err) => {
         console.log(err);
       });
+  });
+};
+
+User.prototype.edit = function () {
+  return new Promise(async (resolve, reject) => {
+    await usersCollection.updateOne(
+      { _id: ObjectId(this.data.userId) },
+      { $set: { username: this.data.username } }
+    );
+    resolve("Edit profile successfully");
   });
 };
 

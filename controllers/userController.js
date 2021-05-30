@@ -23,3 +23,15 @@ exports.login = (req, res) => {
       res.json(result);
     });
 };
+
+exports.edit = (req, res) => {
+  let user = new User(req.body);
+  user
+    .edit()
+    .then((result) => {
+      res.send(result);
+    })
+    .catch((result) => {
+      res.send(result);
+    });
+};

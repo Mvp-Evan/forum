@@ -32,9 +32,9 @@ Forum.prototype.getAllForums = function () {
       .toArray()
       .then((forumsArray) => {
         forumsArray.forEach((forum) => {
-          allFroumIdsAndTitles.push({ _id: forum._id, title: forum.title });
+          allFroumIdsAndTitles.push([forum._id, forum.title]);
         });
-        resolve(allFroumIdsAndTitles);
+        resolve({ forum: allFroumIdsAndTitles });
       })
       .catch((err) => console.log(err));
   });
