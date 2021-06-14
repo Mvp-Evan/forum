@@ -6,6 +6,7 @@ let evaluatedForumsCollection;
 require("../mongo").then(function (result) {
   forumsCollection = result.db().collection("forums");
   evaluatedForumsCollection = result.db().collection("evaluatedForums");
+  commentsCollection = result.db().collection("comments");
 });
 
 let Forum = function (data) {
@@ -17,7 +18,7 @@ Forum.prototype.addForum = function () {
     this.data["up"] = 0;
     this.data["down"] = 0;
     this.data["authorId"] = this.data.userId;
-    this.data["comments"] = [];
+    this.data["commentIds"] = [];
     delete this.data.userId;
     await forumsCollection.insertOne(this.data);
     resolve("Add Forum Successfully");
@@ -62,6 +63,7 @@ Forum.prototype.getDetail = function () {
             up: this.data.up,
             down: this.data.down,
             isVoted: isVoted,
+            // comments:
           });
         } else {
           reject("Forum not Found");
@@ -147,20 +149,39 @@ Forum.prototype.downvote = function () {
   });
 };
 
-Forum.prototype.reply = function () {
+Forum.prototype.addComment = function () {
   return new Promise(async (resolve, reject) => {
+    let result = await commentsCollection.insertOne({
+      userId: this.data.userId,
+      comment: this.data.comment,
+      replies: [],
+    });
     await forumsCollection.updateOne(
-      { forumId: this.data.forumId },
+      { _id: ObjectId(this.data.forumId) },
       {
         $push: {
-          comments: {
-            username: this.data.username,
-            comment: this.data.comment,
+          commentIds: result.insertedId,
+        },
+      }
+    );
+    resolve({ isPass: true });
+  });
+};
+
+Forum.prototype.addReply = function () {
+  return new Promise(async (resolve, reject) => {
+    await commentsCollection.updateOne(
+      { _id: ObjectId(this.data.commentId) },
+      {
+        $push: {
+          replies: {
+            userId: this.data.userId,
+            reply: this.data.reply,
           },
         },
       }
     );
-    resolve("Add Comment Successfully");
+    resolve({ isPass: true });
   });
 };
 

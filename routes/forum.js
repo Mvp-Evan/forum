@@ -7,6 +7,7 @@ router.post("/addForum", forumController.addForum);
 router.post("/detail", forumController.detail);
 router.post("/detail/upvote", forumController.upvote);
 router.post("/detail/downvote", forumController.downvote);
-router.post("/detail/reply", forumController.reply);
+router.post("/detail/addComment", forumController.addComment);
+router.post("/detail/addReply", forumController.addReply);
 
 module.exports = router;

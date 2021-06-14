@@ -57,7 +57,7 @@ User.prototype.login = function () {
           this.data = attemptedUser;
           resolve({
             isPass: true,
-            name: this.data.name,
+            username: this.data.username,
             userId: this.data._id,
           });
         } else {

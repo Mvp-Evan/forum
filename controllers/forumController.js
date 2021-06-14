@@ -49,10 +49,21 @@ exports.downvote = (req, res) => {
       res.send(result);
     });
 };
-exports.reply = (req, res) => {
+exports.addComment = (req, res) => {
   let forum = new Forum(req.body);
   forum
-    .reply()
+    .addComment()
+    .then((result) => {
+      res.send(result);
+    })
+    .catch((result) => {
+      res.send(result);
+    });
+};
+exports.addReply = (req, res) => {
+  let forum = new Forum(req.body);
+  forum
+    .addReply()
     .then((result) => {
       res.send(result);
     })
