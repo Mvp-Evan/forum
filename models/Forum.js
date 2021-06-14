@@ -1,5 +1,4 @@
 const { ObjectId } = require("bson");
-const { format } = require("morgan");
 
 let forumsCollection;
 let evaluatedForumsCollection;
@@ -7,6 +6,7 @@ require("../mongo").then(function (result) {
   forumsCollection = result.db().collection("forums");
   evaluatedForumsCollection = result.db().collection("evaluatedForums");
   commentsCollection = result.db().collection("comments");
+  usersCollection = result.db().collection("users");
 });
 
 let Forum = function (data) {
@@ -54,16 +54,31 @@ Forum.prototype.getDetail = function () {
       .catch((err) => console.log(err));
     forumsCollection
       .findOne({ _id: ObjectId(this.data.forumId) })
-      .then((targetForum) => {
+      .then(async function (targetForum) {
         if (targetForum) {
           this.data = targetForum;
+          let comments = await Promise.all(
+            this.data.commentIds.map(async function (commentId) {
+              let comment = await commentsCollection.findOne({
+                _id: ObjectId(commentId),
+              });
+              comment.commentId = comment._id;
+              delete comment._id;
+              let user = await usersCollection.findOne({
+                _id: ObjectId(comment.userId),
+              });
+              comment.username = user.username;
+              delete comment.userId;
+              return comment;
+            })
+          );
           resolve({
             forumTitle: this.data.title,
             forumBody: this.data.body,
             up: this.data.up,
             down: this.data.down,
             isVoted: isVoted,
-            // comments:
+            comments: comments,
           });
         } else {
           reject("Forum not Found");
@@ -153,7 +168,7 @@ Forum.prototype.addComment = function () {
   return new Promise(async (resolve, reject) => {
     let result = await commentsCollection.insertOne({
       userId: this.data.userId,
-      comment: this.data.comment,
+      commentBody: this.data.comment,
       replies: [],
     });
     await forumsCollection.updateOne(
@@ -170,13 +185,16 @@ Forum.prototype.addComment = function () {
 
 Forum.prototype.addReply = function () {
   return new Promise(async (resolve, reject) => {
+    let user = await usersCollection.findOne({
+      _id: ObjectId(this.data.userId),
+    });
     await commentsCollection.updateOne(
       { _id: ObjectId(this.data.commentId) },
       {
         $push: {
           replies: {
-            userId: this.data.userId,
-            reply: this.data.reply,
+            username: user.username,
+            replyBody: this.data.reply,
           },
         },
       }
