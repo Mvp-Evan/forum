@@ -1,2 +1,3 @@
-a = { first: 100, second: 200 };
-a.third = 300;
+require("dotenv").config();
+
+console.log(process.env.HELLO);
