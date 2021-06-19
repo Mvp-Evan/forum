@@ -33,6 +33,10 @@ User.prototype.signup = function () {
     if (!this.errors.length) {
       let salt = bcrypt.genSaltSync(10);
       this.data.passwd = bcrypt.hashSync(this.data.passwd, salt);
+      this.data.address = "";
+      this.data.tele = "";
+      this.data.birthday = "";
+      this.data.profilePic = "";
       await usersCollection.insertOne(this.data);
       resolve({ isPass: true, isValid: true });
     } else {
@@ -70,13 +74,69 @@ User.prototype.login = function () {
   });
 };
 
-User.prototype.edit = function () {
+User.prototype.getInfo = function () {
   return new Promise(async (resolve, reject) => {
-    await usersCollection.updateOne(
-      { _id: ObjectId(this.data.userId) },
-      { $set: { username: this.data.username } }
-    );
-    resolve("Edit profile successfully");
+    usersCollection
+      .findOne({ _id: ObjectId(this.data.userId) })
+      .then((targetUser) => {
+        if (targetUser) {
+          this.data = targetUser;
+          resolve({
+            profilePic: this.data.profilePic,
+            username: this.data.username,
+            email: this.data.email,
+            address: this.data.address,
+            tele: this.data.tele,
+            birthday: this.data.birthday,
+          });
+        }
+      });
+  });
+};
+
+User.prototype.changeInfo = function () {
+  return new Promise(async (resolve, reject) => {
+    await this.validate();
+    if (!this.errors.length) {
+      let salt = bcrypt.genSaltSync(10);
+      this.data.passwd = bcrypt.hashSync(this.data.passwd, salt);
+      await usersCollection.updateOne(
+        { _id: ObjectId(this.data.userId) },
+        {
+          $set: {
+            profilePic: this.data.profilePic,
+            username: this.data.username,
+            email: this.data.email,
+            address: this.data.address,
+            tele: this.data.tele,
+            birthday: this.data.birthday,
+            passwd: this.data.passwd,
+          },
+        }
+      );
+      resolve({ isPass: true, isValid: true });
+    } else {
+      let salt = bcrypt.genSaltSync(10);
+      this.data.passwd = bcrypt.hashSync(this.data.passwd, salt);
+      await usersCollection.updateOne(
+        { _id: ObjectId(this.data.userId) },
+        {
+          $set: {
+            profilePic: this.data.profilePic,
+            username: this.data.username,
+            address: this.data.address,
+            tele: this.data.tele,
+            birthday: this.data.birthday,
+            passwd: this.data.passwd,
+          },
+        }
+      );
+      if (this.errors.includes("Invalid email")) {
+        reject({ isPass: false, isValid: false });
+      } else {
+        reject({ isPass: false, isValid: true });
+      }
+    }
   });
 };
 

@@ -24,14 +24,26 @@ exports.login = (req, res) => {
     });
 };
 
-exports.edit = (req, res) => {
+exports.changeInfo = (req, res) => {
   let user = new User(req.body);
   user
-    .edit()
+    .changeInfo()
     .then((result) => {
       res.send(result);
     })
     .catch((result) => {
       res.send(result);
+    });
+};
+
+exports.getInfo = (req, res) => {
+  let user = new User(req.body);
+  user
+    .getInfo()
+    .then((result) => {
+      res.json(result);
+    })
+    .catch((result) => {
+      res.json(result);
     });
 };

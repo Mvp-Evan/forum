@@ -68,6 +68,7 @@ Forum.prototype.getDetail = function () {
                 _id: ObjectId(comment.userId),
               });
               comment.username = user.username;
+              comment.profilePic = user.profilePic;
               delete comment.userId;
               return comment;
             })
@@ -108,7 +109,15 @@ Forum.prototype.upvote = function () {
             });
             resolve("Upvote has been canceled");
           } else {
-            reject("You have downvoted it");
+            await forumsCollection.updateOne(
+              { _id: ObjectId(this.data.forumId) },
+              { $inc: { up: 1, down: -1 } }
+            );
+            await evaluatedForumsCollection.updateOne(
+              { _id: ObjectId(this.data.forumId) },
+              { $set: { $isVoted: "up" } }
+            );
+            resolve("Downvote has been canceled and upvote successfully");
           }
         } else {
           await forumsCollection.updateOne(
@@ -146,7 +155,15 @@ Forum.prototype.downvote = function () {
             });
             resolve("Downvote has been canceled");
           } else {
-            reject("You have upvoted it");
+            await forumsCollection.updateOne(
+              { _id: ObjectId(this.data.forumId) },
+              { $inc: { up: -1, down: 1 } }
+            );
+            await evaluatedForumsCollection.updateOne(
+              { _id: ObjectId(this.data.forumId) },
+              { $set: { $isVoted: "down" } }
+            );
+            resolve("Upvote has been canceled and downvote successfully");
           }
         } else {
           await forumsCollection.updateOne(
@@ -194,6 +211,7 @@ Forum.prototype.addReply = function () {
         $push: {
           replies: {
             username: user.username,
+            profilePic: user.profilePic,
             replyBody: this.data.reply,
           },
         },
