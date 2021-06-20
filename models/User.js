@@ -16,12 +16,21 @@ User.prototype.validate = function () {
     if (!validator.isEmail(this.data.email)) {
       this.errors.push("Invalid email");
     } else {
-      let emailExists = await usersCollection.findOne({
-        email: this.data.email,
-      });
-      if (emailExists) {
-        this.errors.push("Email exists");
-      }
+      usersCollection
+        .findOne({
+          email: this.data.email,
+        })
+        .then((targetUser) => {
+          if (this.data.userId) {
+            if (targetUser && targetUser.userId != this.data.userId) {
+              this.errors.push("Email exists");
+            }
+          } else {
+            if (targetUser) {
+              this.errors.push("Email exists");
+            }
+          }
+        });
     }
     resolve();
   });
@@ -86,7 +95,6 @@ User.prototype.getInfo = function () {
             profilePic: this.data.profilePic,
             username: this.data.username,
             email: this.data.email,
-            passwd: this.data.passwd,
             address: this.data.address,
             tele: this.data.tele,
             birthday: this.data.birthday,
@@ -100,8 +108,6 @@ User.prototype.changeInfo = function () {
   return new Promise(async (resolve, reject) => {
     await this.validate();
     if (!this.errors.length) {
-      let salt = bcrypt.genSaltSync(10);
-      this.data.passwd = bcrypt.hashSync(this.data.passwd, salt);
       await usersCollection.updateOne(
         { _id: ObjectId(this.data.userId) },
         {
@@ -112,14 +118,11 @@ User.prototype.changeInfo = function () {
             address: this.data.address,
             tele: this.data.tele,
             birthday: this.data.birthday,
-            passwd: this.data.passwd,
           },
         }
       );
       resolve({ isPass: true, isValid: true });
     } else {
-      let salt = bcrypt.genSaltSync(10);
-      this.data.passwd = bcrypt.hashSync(this.data.passwd, salt);
       await usersCollection.updateOne(
         { _id: ObjectId(this.data.userId) },
         {
