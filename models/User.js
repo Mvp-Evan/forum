@@ -86,6 +86,7 @@ User.prototype.getInfo = function () {
             profilePic: this.data.profilePic,
             username: this.data.username,
             email: this.data.email,
+            passwd: this.data.passwd,
             address: this.data.address,
             tele: this.data.tele,
             birthday: this.data.birthday,

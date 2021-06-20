@@ -114,8 +114,8 @@ Forum.prototype.upvote = function () {
               { $inc: { up: 1, down: -1 } }
             );
             await evaluatedForumsCollection.updateOne(
-              { _id: ObjectId(this.data.forumId) },
-              { $set: { $isVoted: "up" } }
+              { forumId: this.data.forumId, userId: this.data.userId },
+              { $set: { isVoted: "up" } }
             );
             resolve("Downvote has been canceled and upvote successfully");
           }
@@ -160,8 +160,8 @@ Forum.prototype.downvote = function () {
               { $inc: { up: -1, down: 1 } }
             );
             await evaluatedForumsCollection.updateOne(
-              { _id: ObjectId(this.data.forumId) },
-              { $set: { $isVoted: "down" } }
+              { forumId: this.data.forumId, userId: this.data.userId },
+              { $set: { isVoted: "down" } }
             );
             resolve("Upvote has been canceled and downvote successfully");
           }
